@@ -1,0 +1,1 @@
+B1 = readmtx('B1.mtx', 500, 500, 'double32')
