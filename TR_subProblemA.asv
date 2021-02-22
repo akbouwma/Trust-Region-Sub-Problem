@@ -1,5 +1,0 @@
-Aload('A1.mat');
-load('A2.mat');
-
-
-[D,V] = eig(A1Expression1, A2.Expression1)
