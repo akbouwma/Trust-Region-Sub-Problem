@@ -9,8 +9,12 @@ clear;
 close all;
 
 % Load dense matrices
-A1 = load('Test_Matrices/A1.mat').Expression1;
-A2 = load('Test_Matrices/A2.mat').Expression1;
+A1 = load('Test_Matrices/A1.mat');
+A2 = load('Test_Matrices/A2.mat');
+
+A1 = A1.Expression1;
+A2 = A2.Expression1;
+
 
 % Load sparse matrices using our mtx reader defined below
 B1 = readMTX(load('Test_Matrices/B1.mtx'));
