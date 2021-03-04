@@ -13,7 +13,7 @@ A = matlabFunction(A);
 
 maxIts = 200;       % Maximum iterations allowed
 epsilon = 10^(-8);  % Stopping tolerance
-B = [2 0; 0 0.5];   % B defines the shape of the elliptical trust region
+B = [1 0; 0 1];     % B defines the shape of the elliptical trust region
 Delta = 3;          % Initial "radius" of trust region
 x = [0; 0];         % Initial solution guess
 
@@ -41,6 +41,8 @@ for i = 1:maxIts
     y1 = y(1:2);
     y2 = y(3:4);
     
+    eig(A(x(1),,-B)
+    
     % Compute boundary step from rightmost eigenvector
     p1 = -sign(g(x(1),x(2))' * y2) * Delta * y1 / BNorm(y1, B);
     
@@ -52,10 +54,10 @@ for i = 1:maxIts
     end
 end
 
-x       % Minimizer of f
+x
 
 
 % Elliptical B-Norm definition
 function val = BNorm(x, B)
-    val = sqrt(x'*B*x);
+    val = norm(sqrt(B)*x);
 end
