@@ -15,7 +15,7 @@ maxIts = 200;       % Maximum iterations allowed
 epsilon = 10^(-8);  % Stopping tolerance
 B = [2 0; 0 0.5];   % B defines the shape of the elliptical trust region
 Delta = 3;          % Initial "radius" of trust region
-x = [0; 0];         % Initial solution guess
+x = [0.5; 0.25];         % Initial solution guess
 
 % M_tilde pencil defintion
 ML = @(x,y) [-B, A(x,y); A(x,y), -g(x,y)*(g(x,y)')/Delta^2];  % LHS of M-tilde
@@ -23,16 +23,17 @@ MR = [zeros(2,2), -B; -B, zeros(2,2)];                        % RHS of M-tilde
 
 % Algorithm 5.1 implementation
 for i = 1:maxIts
-    if (norm(g(x(1), x(2))) < eps)
+    if (norm(g(x(1), x(2))) < epsilon)
         break;
     end
     
     % Compute Newton step
     p0 = -A(x(1),x(2)) \ g(x(1),x(2));
+    p0InTR = true;
     
     % Ignore Newton step if it is outside of the trust region
     if ~(BNorm(p0, B) < Delta)
-        p0 = [0;0];
+        p0InTR = false;
     end
     
     % Find the rightmost eigenvalue/vector of the pencil M_tilde
@@ -44,8 +45,9 @@ for i = 1:maxIts
     % Compute boundary step from rightmost eigenvector
     p1 = -sign(g(x(1),x(2))' * y2) * Delta * y1 / BNorm(y1, B);
     
-    % Choose the best step between Newton and boundary steps
-    if (f(x(1) + p0(1), x(2) + p0(2)) < f(x(1) + p1(1), x(2) + p1(2)))
+    % Choose the best step between Newton and boundary steps.  If p0 was
+    % outside the trust region, pick p1 by default
+    if ( p0InTR && f(x(1) + p0(1), x(2) + p0(2)) < f(x(1) + p1(1), x(2) + p1(2)) )
         x = x + p0;
     else
         x = x + p1;
@@ -53,6 +55,7 @@ for i = 1:maxIts
 end
 
 x       % Minimizer of f
+i       % Number of iterations
 
 
 % Elliptical B-Norm definition
