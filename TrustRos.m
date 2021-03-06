@@ -1,3 +1,9 @@
+%{
+% Minimize 2-D Rosenbrock Function Using Elliptical TRS
+% Authors: Alan Bouwman, Caleb Jacobs
+%}
+
+% Clear any used variables
 clear
 syms x y;
 
@@ -6,7 +12,7 @@ f(x, y) = (1 - x)^2  + 100*(y - x^2)^2;
 g = gradient(f);
 A = hessian(f);
 
-% Convert cost funciton its derivatives to numerical functions
+% Convert cost function its derivatives to numerical functions
 f = matlabFunction(f);
 g = matlabFunction(g);
 A = matlabFunction(A);
@@ -14,8 +20,8 @@ A = matlabFunction(A);
 maxIts = 200;       % Maximum iterations allowed
 epsilon = 10^(-8);  % Stopping tolerance
 B = [2 0; 0 0.5];   % B defines the shape of the elliptical trust region
-Delta = 3;          % Initial "radius" of trust region
-x = [0.5; 0.25];         % Initial solution guess
+Delta = 1;          % Initial "radius" of trust region
+x = [5;5];          % Initial solution guess
 
 % M_tilde pencil defintion
 ML = @(x,y) [-B, A(x,y); A(x,y), -g(x,y)*(g(x,y)')/Delta^2];  % LHS of M-tilde
@@ -29,6 +35,8 @@ for i = 1:maxIts
     
     % Compute Newton step
     p0 = -A(x(1),x(2)) \ g(x(1),x(2));
+    
+    % Assume we will use Newton step
     p0InTR = true;
     
     % Ignore Newton step if it is outside of the trust region
@@ -38,7 +46,6 @@ for i = 1:maxIts
     
     % Find the rightmost eigenvalue/vector of the pencil M_tilde
     [y, lambda] = eigs(ML(x(1),x(2)), MR, 1, 'largestreal');
-    y = real(y);
     y1 = y(1:2);
     y2 = y(3:4);
     
