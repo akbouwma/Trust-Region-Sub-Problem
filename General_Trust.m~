@@ -31,7 +31,8 @@ scale   = 0.1;                   % Delta changer
 x       = [5;5];                 % Initial minimizer guess
 
 % Elliptical trust region matrix
-B = getEllipticalMatrix(1, [1;1], 1, [1;-1]);
+B = [1 0; 0 1];
+B = B*B';                        % Ensure B is SPD
 
 % Begin solving the TRS
 for i = 1:maxIts
@@ -80,7 +81,6 @@ for i = 1:maxIts
     end
 end
 
-B
 x
 i
 
@@ -95,7 +95,7 @@ function B = getEllipticalMatrix(a, va, b, vb)
     vb = vb / norm(vb);     % Normalize minor axis vector
     
     P = [va vb];
-    D = diag([1/a,1/b]).^2;
+    D = diag([1/sqrt(a),1/sqrt(b)]);
     
     B = P * D * P^(-1);
 end

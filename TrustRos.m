@@ -17,11 +17,11 @@ f = matlabFunction(f);
 g = matlabFunction(g);
 A = matlabFunction(A);
 
-maxIts = 200;       % Maximum iterations allowed
+maxIts = 10000;     % Maximum iterations allowed
 epsilon = 10^(-8);  % Stopping tolerance
 B = [2 0; 0 0.5];   % B defines the shape of the elliptical trust region
-Delta = 1;          % Initial "radius" of trust region
-x = [5;5];          % Initial solution guess
+Delta = 3;          % Initial "radius" of trust region
+x = [100;5];        % Initial solution guess
 
 % M_tilde pencil defintion
 ML = @(x,y) [-B, A(x,y); A(x,y), -g(x,y)*(g(x,y)')/Delta^2];  % LHS of M-tilde
