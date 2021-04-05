@@ -28,10 +28,10 @@ maxIts  = 200;                   % Max iterations allowed for convergence
 epsilon = 10^(-5);               % Stopping tolerance
 Delta   = 1;                     % Initial trust region "radius"
 scale   = 0.1;                   % Delta changer
-x       = [5;5];                 % Initial minimizer guess
+x       = [100;5];                 % Initial minimizer guess
 
 % Elliptical trust region matrix
-B = getEllipticalMatrix(1, [1;1], 1, [1;-1]);
+B = getEllipticalMatrix(2, [1;1], 3, [1;-1]);
 
 % Begin solving the TRS
 for i = 1:maxIts
@@ -63,19 +63,22 @@ for i = 1:maxIts
     % Compute right matrix of M
     M1 = [zeros(n) B;B zeros(n)];
     
-    % Compute TR-boundary step
-    [v, lam] = eigs(@(x)M0*x, 2*n, -M1, 1, 'lr');
-    p1 = v(n+1:end);
-    p1 = p1 / BNorm(p1, B) * Delta;
+    % Find the rightmost eigenvalue/vector of the pencil M_tilde
+    [y, lambda] = eigs(M0, -M1, 1, 'largestreal');
+    y1 = y(1:n);
+    y2 = y(n+1:end);
+    
+    % Compute boundary step from rightmost eigenvector
+    p1 = -sign(g' * y2) * Delta * y1 / BNorm(y1, B);
     
     % Compare Newton step to TR-boundary step to get optimal solution
     if (useP0 && f(x + p0) < f(x + p1))
         x = x + p0;
-        Delta = Delta * (1 - scale);
+%         Delta = Delta * (1 - scale);
         fprintf("p0: %d, x = (%.1f,%.1f), Delta = %.2f\n", i, x(1), x(2), Delta)
     else
         x = x + p1;
-        Delta = Delta * (1 + scale);
+%         Delta = Delta * (1 + scale);
         fprintf("p1: %d, x = (%.1f,%.1f), Delta = %.2f\n", i, x(1), x(2), Delta)
     end
 end
