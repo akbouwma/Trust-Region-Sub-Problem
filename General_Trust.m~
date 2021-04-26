@@ -8,13 +8,13 @@ clear
 close
 
 % Number of dimensions
-n = 200;
+n = 100;
 
 % Cost function definitions
 f = @(x) rosenbrock(x); % Cost function
 
 % Trust region parameters
-maxIts  = 500;                   % Max iterations allowed for convergence
+maxIts  = 200;                   % Max iterations allowed for convergence
 epsilon = 10^(-5);               % Stopping tolerance
 Delta   = 0.5;                   % Initial trust region "radius"
 scale   = 0.1;                   % Delta changer
@@ -67,15 +67,17 @@ for i = 1:maxIts
     % Compare Newton step to TR-boundary step to get optimal solution
     if (useP0 && f(x + p0) < f(x + p1))
         x = x + p0;
-        fprintf("p0: %d, x err = %.6f, Delta = %.2f\n", i, norm(x - ones(n,1)), Delta)
+%         Delta = Delta * (1 - scale);
+        fprintf("p0: %d, x = (%.1f,%.1f), Delta = %.2f\n", i, x(1), x(2), Delta)
     else
         x = x + p1;
-        fprintf("p1: %d, x err = %.6f, Delta = %.2f\n", i, norm(x - ones(n,1)), Delta)
+%         Delta = Delta * (1 + scale);
+        fprintf("p1: %d, x = (%.1f,%.1f), Delta = %.2f\n", i, x(1), x(2), Delta)
     end
 end
 
 B;
-norm(x - ones(n,1))
+x
 i
 
 % Elliptical norm
