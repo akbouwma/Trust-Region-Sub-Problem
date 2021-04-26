@@ -8,11 +8,12 @@ clear
 close
 
 % Number of dimensions
-n = 2;
+n = 3;
 
 % Cost function definitions
 % Cost function
-f = @(x) (1 - x(1))^2 + 100*(x(2) - x(1)^2)^2; % Cost function
+% f = @(x) (1 - x(1))^2 + 100*(x(2) - x(1)^2)^2; % Cost function
+f = @(x) rosenbrock(x); % Cost function
 
 % Gradient of cost function
 G = @(x) [-2*(1 - x(1)) - 400 * x(1) * (x(2) - x(1)^2); ...
@@ -28,15 +29,18 @@ maxIts  = 200;                   % Max iterations allowed for convergence
 epsilon = 10^(-5);               % Stopping tolerance
 Delta   = 1;                     % Initial trust region "radius"
 scale   = 0.1;                   % Delta changer
-x       = [100;5];                 % Initial minimizer guess
+x       = [10;5;3];               % Initial minimizer guess
 
 % Elliptical trust region matrix
-B = getEllipticalMatrix(2, [1;1], 3, [1;-1]);
+% B = getEllipticalMatrix(2, [1;1], 3, [1;-1]);
+B = eye(n);
+B(2,2) = 3;
 
 % Begin solving the TRS
 for i = 1:maxIts
     % Compute current gradient
-    g = G(x);
+    % g = G(x);
+    g = finiteGradient(f, x);
     
     % Check stopping criteria
     if (norm(g) < epsilon)
@@ -44,7 +48,8 @@ for i = 1:maxIts
     end
     
     % Compute current hessian
-    A = H(x);
+    % A = H(x);
+    A = finiteHessian(f, x);
     
     % Compute Newton step
     p0 = -A \ g;
