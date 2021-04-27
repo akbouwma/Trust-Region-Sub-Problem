@@ -26,7 +26,7 @@ H = @(x) [2 + 800*x(1)^2 - 400*(x(2) - x(1)^2), -400*x(1); ...
 % Trust region parameters
 maxIts  = 200;                   % Max iterations allowed for convergence
 epsilon = 10^(-5);               % Stopping tolerance
-Delta   = 0.5;                   % Initial trust region "radius"
+Delta   = 0.25;                  % Initial trust region "radius"
 scale   = 0.1;                   % Delta changer
 x       = [-5;5];                % Initial minimizer guess
 
@@ -36,7 +36,7 @@ vb = [1;-1];                     % Minor axis vector
 a = 1;                           % Radius of major axis
 b = 1;                           % Radius of minor axis
 
-B = getEllipticalMatrix(a, va, b, vb);
+%B = getEllipticalMatrix(a, va, b, vb);
 
 % Compute Rosenbrock over designated area
 figure();
@@ -70,6 +70,9 @@ for i = 0:maxIts
     
     % Compute Newton step
     p0 = -A \ g;
+    
+    % Compute elliptical matrix
+    B = getEllipticalMatrix([0;0] - x, norm(x - [0;0])/Delta);
     
     % Assume we will use Newton step
     useP0 = false;
@@ -108,9 +111,12 @@ for i = 0:maxIts
     % Compute trust region boundaries
     t = 0 : 0.01 : 2 * pi;
     r = zeros(length(t), 2);
+    [V,D] = eig(B);
+    va = V(:,1) / norm(V(:,1));
+    vb = V(:,2) / norm(V(:,2));
+    a = 1/sqrt(D(1,1));
+    b = 1/sqrt(D(2,2));
     for j = 1 : length(t)
-        va = va / norm(va);
-        vb = vb / norm(vb);
         r(j,:) = x + Delta * (a * va * cos(t(j)) + b * vb * sin(t(j)));
     end
     
@@ -127,13 +133,13 @@ function a = BNorm(p, B)
     a = sqrt(p'*B*p);
 end
 
-% Generate elliptical region matrix
-function B = getEllipticalMatrix(a, va, b, vb)
-    va = va / norm(va);     % Normalize major axis vector
-    vb = vb / norm(vb);     % Normalize minor axis vector
-    
-    P = [va vb];
-    D = diag([1/a,1/b]).^2;
-    
-    B = P * D * P^(-1);
-end
+% % Generate elliptical region matrix
+% function B = getEllipticalMatrix(a, va, b, vb)
+%     va = va / norm(va);     % Normalize major axis vector
+%     vb = vb / norm(vb);     % Normalize minor axis vector
+%     
+%     P = [va vb];
+%     D = diag([1/a,1/b]).^2;
+%     
+%     B = P * D * P^(-1);
+% end

@@ -8,7 +8,7 @@ clear
 close
 
 % Number of dimensions
-n = 200;
+n = 100;
 
 % Cost function definitions
 f = @(x) rosenbrock(x); % Cost function
@@ -16,18 +16,15 @@ f = @(x) rosenbrock(x); % Cost function
 % Trust region parameters
 maxIts  = 500;                   % Max iterations allowed for convergence
 epsilon = 10^(-5);               % Stopping tolerance
-Delta   = 0.5;                   % Initial trust region "radius"
+Delta   = 1;                     % Initial trust region "radius"
 scale   = 0.1;                   % Delta changer
 x       = zeros(n,1);            % Initial minimizer guess
 
-% Elliptical trust region matrix
-% B = getEllipticalMatrix(2, [1;1], 3, [1;-1]);
-B = eye(n);
+% B = eye(n);
 
 % Begin solving the TRS
 for i = 1:maxIts
     % Compute current gradient
-    % g = G(x);
     g = finiteGradient(f, x);
     
     % Check stopping criteria
@@ -41,6 +38,9 @@ for i = 1:maxIts
     
     % Compute Newton step
     p0 = -A \ g;
+    
+    % Compute elliptical matrix for this step
+    B = getEllipticalMatrix(g, 1/norm(g));
     
     % Assume we will use Newton step
     useP0 = false;
@@ -81,15 +81,4 @@ i
 % Elliptical norm
 function a = BNorm(p, B)
     a = sqrt(p'*B*p);
-end
-
-% Generate elliptical region matrix
-function B = getEllipticalMatrix(a, va, b, vb)
-    va = va / norm(va);     % Normalize major axis vector
-    vb = vb / norm(vb);     % Normalize minor axis vector
-    
-    P = [va vb];
-    D = diag([1/a,1/b]).^2;
-    
-    B = P * D * P^(-1);
 end
